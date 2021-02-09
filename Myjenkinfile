@@ -32,21 +32,20 @@ pipeline {
             }
 			
         }
-        stage('metric-check') {
-			steps {
-                echo 'unit test..'
-				bat label: '', script: 'mvn jacoco(execPattern: 'target/jacoco.exec')'
-            }
-			post {
-                success {
-				cobertura autoUpdateHealth: false, autoUpdateStability: false, jacocoReportFile: 'target/site/cobertura/coverage.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false                  
-                }
+       stage('Build') 
+       {
+         steps {
+               sh './jenkins_build.sh'
+               junit '*/build/test-results/*.xml'
+               step( [ $class: 'JacocoPublisher' ] )
+     }
+}
             }
 			
         }
         stage('package') {
 			steps {
-                echo 'metric-check..'
+                echo 'Build..'
 				bat label: '', script: 'mvn package'	
             }
 			
